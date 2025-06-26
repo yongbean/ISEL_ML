@@ -5,11 +5,14 @@ import java.util.List;
 
 public class CostMethod {
 
+    private double calcHx(float w, float b, double x) {
+        return w * x + b;
+    }
     // (y_pred - y_actual)
     public List<Double> calcDiff(float w, float b, List<Double> x, List<Double> y) {
         List<Double> diff = new ArrayList<>();
         for (int i = 0; i < x.size(); i++) {
-            double pred = w * x.get(i) + b;
+            double pred = calcHx(w, b, x.get(i));
             diff.add(pred - y.get(i));
         }
         return diff;
@@ -40,4 +43,6 @@ public class CostMethod {
         }
         return (2.0 / diff.size()) * sum;
     }
+
+
 }

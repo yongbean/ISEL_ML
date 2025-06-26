@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-//TIP 코드를 <b>실행</b>하려면 <shortcut actionId="Run"/>을(를) 누르거나
-// 에디터 여백에 있는 <icon src="AllIcons.Actions.Execute"/> 아이콘을 클릭하세요.
 public class Main {
     public static void main(String[] args) throws IOException {
 
@@ -22,7 +20,7 @@ public class Main {
             admitRate.add(Double.valueOf(row.get(8)));    // Chance of Admit
 
             List<Double> oneRow = new ArrayList<>();
-            for (int j = 0; j < row.size()-1; j++) {
+            for (int j = 1; j < row.size()-1; j++) {
                 oneRow.add(Double.parseDouble(row.get(j)));
             }
             wholeData.add(oneRow);
@@ -31,6 +29,13 @@ public class Main {
         // 각 행마다 TOEFL, Admit Rate 출력
 //        for (int i = 0; i < toeflScore.size(); i++) {
 //            System.out.println("TOEFL: " + toeflScore.get(i) + " | Admit Rate: " + admitRate.get(i));
+//        }
+        // 모든 data 출력
+//        for(int i = 0; i < wholeData.size(); i++){
+//            for(int j = 0; j < wholeData.get(i).size(); j++){
+//                System.out.print(wholeData.get(i).get(j) + " ");
+//            }
+//            System.out.println();
 //        }
 
         Utils utils = new Utils();
