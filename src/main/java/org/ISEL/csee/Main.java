@@ -21,8 +21,17 @@ public class Main {
 
             List<Double> oneRow = new ArrayList<>();
             for (int j = 1; j < row.size()-1; j++) {
-                oneRow.add(Double.parseDouble(row.get(j)));
+                double val = Double.parseDouble(row.get(j));
+                if(j == 1) val /= 340.0;
+                else if(j == 2) val /= 120.0;
+                else if(j == 3) val /= 5.0;
+                else if(j == 4) val /= 5.0;
+                else if(j == 5) val /= 5.0;
+                else if(j == 6) val /= 10.0;
+                else if(j == 7) val /= 1.0;
+                oneRow.add(val);
             }
+            oneRow.add(1.0);
             wholeData.add(oneRow);
         }
 
@@ -39,12 +48,20 @@ public class Main {
 //        }
 
         Utils utils = new Utils();
-        float learningRate = 0.01f;
+        float learningRate = 0.1f;
         float w = 0f;
         float b = 0f;
-        int epochs = 100000;
+        int epochs = 1000001;
+        List<Double> weights = new ArrayList<>();
 
-        utils.startGradientDescent(toeflScore, admitRate, learningRate, w, b, epochs);
-        utils.startMultiGradientDescent(wholeData, admitRate, learningRate, w, b, epochs);
+        int featureSize = wholeData.get(0).size();
+
+        for(int i = 0; i < featureSize; i++){
+            weights.add(Math.random());
+        }
+
+
+//        utils.startGradientDescent(toeflScore, admitRate, learningRate, w, b, epochs);
+        utils.startMultiGradientDescent(wholeData, admitRate, learningRate, weights, epochs);
     }
 }
