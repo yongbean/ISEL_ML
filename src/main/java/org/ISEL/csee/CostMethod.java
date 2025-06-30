@@ -4,6 +4,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+
+/**
+ *
+ */
+
 public class CostMethod {
 
     private double calcHx(float w, float b, double x) {
@@ -19,7 +24,7 @@ public class CostMethod {
         return diff;
     }
 
-    private List<Double> calcMultHx(List<List<Double>> x, List<Double> weights) {
+    private List<Double> calcMultiHx(List<List<Double>> x, List<Double> weights) {
         List<Double> result = new ArrayList<>();
 
         for (List<Double> row : x) {
@@ -34,8 +39,8 @@ public class CostMethod {
     }
 
 
-    public List<Double> calcMultDiff(List<Double> weights, List<List<Double>> x, List<Double> y) {
-        List<Double> result = calcMultHx(x, weights);
+    public List<Double> calcMultiDiff(List<Double> weights, List<List<Double>> x, List<Double> y) {
+        List<Double> result = calcMultiHx(x, weights);
         List<Double> diff = new ArrayList<>();
 
         for (int i = 0; i < result.size(); i++) {
@@ -61,7 +66,7 @@ public class CostMethod {
         return (2.0 / x.size()) * sum;
     }
 
-    public List<Double> graMultdW(List<Double> diff, List<List<Double>> x) {
+    public List<Double> graMultidW(List<Double> diff, List<List<Double>> x) {
         int m = x.size();                 // 데이터 개수
         int n = x.get(0).size();          // feature 개수
         List<Double> grads = new ArrayList<>(Collections.nCopies(n, 0.0));
