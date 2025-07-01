@@ -55,7 +55,7 @@ public class Runner {
             List<Double> flatTestX = flattenSingleFeature(testX);
 
             SingleGradientDescent single = new SingleGradientDescent();
-            float[] wb = single.trainOnly(flatTrainX, trainY, learningRate, w, b, epochs);
+            float[] wb = single.run(flatTrainX, trainY, learningRate, w, b, epochs);
 
             System.out.println("\n▶ Predicting on test set:");
             for (int i = 0; i < flatTestX.size(); i++) {
@@ -72,7 +72,7 @@ public class Runner {
             for (int i = 0; i < featureSize; i++) weights.add(Math.random());
 
             MultiGradientDescent multi = new MultiGradientDescent();
-            List<Double> learnedWeights = multi.trainOnly(trainX, trainY, learningRate, weights, epochs);
+            List<Double> learnedWeights = multi.run(trainX, trainY, learningRate, weights, epochs);
 
             System.out.println("\n▶ Predicting on test set:");
             for (int i = 0; i < testX.size(); i++) {
@@ -140,6 +140,6 @@ public class Runner {
     private void printHelp(Options options) {
         HelpFormatter formatter = new HelpFormatter();
         String header = "ML Regression Model Runner";
-        formatter.printHelp("java -jar YourApp.jar", header, options, "", true);
+        formatter.printHelp(header, options, true);
     }
 }
