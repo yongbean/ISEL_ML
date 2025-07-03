@@ -51,6 +51,7 @@ public class Runner {
             System.out.println("▶ Training Single-Variable Linear Regression...");
 
             float w = 0f, b = 0f;
+            // 2D to 1D
             List<Double> flatTrainX = flattenSingleFeature(trainX);
             List<Double> flatTestX = flattenSingleFeature(testX);
 

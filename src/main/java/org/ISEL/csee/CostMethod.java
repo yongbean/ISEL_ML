@@ -4,11 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-
-/**
- *
- */
-
 public class CostMethod {
 
     private double calcHx(float w, float b, double x) {
