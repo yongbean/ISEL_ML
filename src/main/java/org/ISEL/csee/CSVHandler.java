@@ -19,24 +19,47 @@ public class CSVHandler {
     public List<List<Double>> getNormalizedFeatures() {
         List<List<Double>> normalizedData = new ArrayList<>();
 
-        // 첫 줄이 헤더인 경우, 1부터 시작
-        for (int i = 1; i < rawCsvData.size(); i++) {
+        // 1. CSV 데이터에서 feature 부분 추출 (label 제외)
+        List<List<Double>> rawFeatures = new ArrayList<>();
+        for (int i = 1; i < rawCsvData.size(); i++) {  // 헤더 제외
             List<String> row = rawCsvData.get(i);
-            List<Double> oneRow = new ArrayList<>();
-
-            for (int j = 0; j < row.size() - 1; j++) {
-                double val = Double.parseDouble(row.get(j));
-                if (j == 0) val /= 340.0;     // GRE
-                else if (j == 1) val /= 120.0; // TOEFL
-                else if (j == 2) val /= 5.0;   // University Rating
-                else if (j == 3) val /= 5.0;   // SOP
-                else if (j == 4) val /= 5.0;   // LOR
-                else if (j == 5) val /= 10.0;  // CGPA
-                else if (j == 6) val /= 1.0;   // Research
-                oneRow.add(val);
+            List<Double> features = new ArrayList<>();
+            for (int j = 0; j < row.size() - 1; j++) {  // 마지막 열은 label
+                features.add(Double.parseDouble(row.get(j)));
             }
-            oneRow.add(1.0); // bias term
-            normalizedData.add(oneRow);
+            rawFeatures.add(features);
+        }
+
+        if (rawFeatures.isEmpty()) return normalizedData;
+
+        int numFeatures = rawFeatures.get(0).size();
+
+        // 2. 각 feature별 min/max 계산
+        double[] minVals = new double[numFeatures];
+        double[] maxVals = new double[numFeatures];
+        Arrays.fill(minVals, Double.POSITIVE_INFINITY);
+        Arrays.fill(maxVals, Double.NEGATIVE_INFINITY);
+
+        for (List<Double> row : rawFeatures) {
+            for (int j = 0; j < numFeatures; j++) {
+                double val = row.get(j);
+                if (val < minVals[j]) minVals[j] = val;
+                if (val > maxVals[j]) maxVals[j] = val;
+            }
+        }
+
+        // 3. 정규화 + bias term 추가
+        for (List<Double> row : rawFeatures) {
+            List<Double> normRow = new ArrayList<>();
+            for (int j = 0; j < numFeatures; j++) {
+                double min = minVals[j];
+                double max = maxVals[j];
+                double val = row.get(j);
+                double norm = (max - min == 0.0) ? 0.0 : (val - min) / (max - min);
+                normRow.add(norm);
+            }
+            normRow.add(1.0);  // bias term
+            normalizedData.add(normRow);
         }
 
         return normalizedData;
@@ -47,7 +70,7 @@ public class CSVHandler {
         List<Double> labels = new ArrayList<>();
         for (int i = 1; i < rawCsvData.size(); i++) {
             List<String> row = rawCsvData.get(i);
-            labels.add(Double.parseDouble(row.get(7)));
+            labels.add(Double.parseDouble(row.getLast()));
         }
         return labels;
     }

@@ -84,6 +84,31 @@ public class Runner {
                 System.out.printf("Sample %d: Predicted = %.5f | Actual = %.5f%n", i, pred, testY.get(i));
             }
 
+        } else if(modelType.equalsIgnoreCase("logistic")) {
+            System.out.println("▶ Training single-feature Logistic Regression...");
+
+            int featureSize = trainX.get(0).size();
+            List<Double> weights = new ArrayList<>();
+//            for (int i = 0; i < featureSize; i++) weights.add(Math.random());
+            for (int i = 0; i < featureSize; i++) weights.add(0.0);
+
+            LogisticRegression logistic = new LogisticRegression();
+            List<Double> logisticLearnedWeights = logistic.run(trainX, trainY, weights, learningRate, epochs);
+
+            System.out.println("\n▶ Predicting on test set:");
+            int count = 0;
+            for (int i = 0; i < testX.size(); i++) {
+                double pred = 0;
+                for (int j = 0; j < logisticLearnedWeights.size(); j++) {
+                    pred += logisticLearnedWeights.get(j) * testX.get(i).get(j);
+                }
+                System.out.println("pred: " + pred + ", weight: " + logisticLearnedWeights.subList(0, logisticLearnedWeights.size()));
+                double sig = logistic.sigmoid(pred);
+                sig = (sig > 0.9) ? 1:0;
+                System.out.printf("Sample %d: Predicted = %.5f | Actual = %.5f%n", i, sig, testY.get(i));
+                if((int)sig == testY.get(i)) count++;
+            }
+            System.out.println("Matched count: " + count + "/" + testY.size());
         } else {
             System.out.println("Invalid model type. Use 'single' or 'multi'.");
         }
