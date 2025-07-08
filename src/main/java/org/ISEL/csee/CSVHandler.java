@@ -91,18 +91,6 @@ public class CSVHandler {
         return labels;
     }
 
-
-    // Optional: write to disk
-    public void writeCSV(List<List<String>> csvFileList, String fileName) throws IOException {
-        String fileLocation = System.getProperty("user.dir") + File.separator + fileName;
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(fileLocation))) {
-            for (List<String> row : csvFileList) {
-                bw.write(String.join(",", row));
-                bw.newLine();
-            }
-        }
-    }
-
     // 내부: CSV 파일 읽기
     private List<List<String>> readCSV(String fileName) throws IOException {
         List<List<String>> csvFileList = new ArrayList<>();
