@@ -50,6 +50,11 @@ public class Runner {
         int tp = 0, fp = 0, fn = 0, tn = 0;
         double precision = 0.01f, recall = 0.01f, accuracy = 0.01f;
 
+        int featureSize = trainX.getFirst().size();
+        List<Double> weights = new ArrayList<>();
+        for (int i = 0; i < featureSize; i++) weights.add(Math.random());
+//        for (int i = 0; i < featureSize; i++) weights.add(0.0);
+
         // 4. Model Training & Prediction
         if (modelType.equalsIgnoreCase("single")) {
             System.out.println("▶ Training Single-Variable Linear Regression...");
@@ -72,10 +77,6 @@ public class Runner {
         } else if (modelType.equalsIgnoreCase("multi")) {
             System.out.println("▶ Training Multi-Variable Linear Regression...");
 
-            int featureSize = trainX.get(0).size();
-            List<Double> weights = new ArrayList<>();
-            for (int i = 0; i < featureSize; i++) weights.add(Math.random());
-
             MultiGradientDescent multi = new MultiGradientDescent();
             List<Double> learnedWeights = multi.run(trainX, trainY, learningRate, weights, epochs);
 
@@ -91,10 +92,6 @@ public class Runner {
         } else if(modelType.equalsIgnoreCase("logistic")) {
             System.out.println("▶ Training single-feature Logistic Regression...");
 
-            int featureSize = trainX.get(0).size();
-            List<Double> weights = new ArrayList<>();
-//            for (int i = 0; i < featureSize; i++) weights.add(Math.random());
-            for (int i = 0; i < featureSize; i++) weights.add(0.0);
 
             BinaryLogisticRegression logistic = new BinaryLogisticRegression();
             List<Double> logisticLearnedWeights = logistic.run(trainX, trainY, weights, learningRate, epochs);
@@ -135,7 +132,47 @@ public class Runner {
             System.out.println("F1 score = " + f1);
             double result = (double) (tp + tn) / testY.size();
             System.out.println("Matched count: " + (tp + tn) + "/" + testY.size() + " (" + result + ")");
-        } else {
+        } else if(modelType.equalsIgnoreCase("softmax")) {
+            MultinomialLogisticRegression softmax = new MultinomialLogisticRegression();
+            List<List<Double>> softmaxWeight = softmax.run(trainX, trainY, learningRate, epochs);
+
+            System.out.println("\n▶ Predicting on test set:");
+
+            int correct = 0;
+
+            for (int i = 0; i < testX.size(); i++) {
+                List<Double> xInstance = testX.get(i);
+                List<Double> hx = softmax.predict(softmaxWeight, xInstance); // z = W * x
+                List<Double> soft = softmax.softmax(hx); // softmax 확률 벡터
+
+                // 예측 클래스 = 확률이 가장 높은 인덱스
+                int predictedClass = 0;
+                double maxProb = soft.get(0);
+                for (int k = 1; k < soft.size(); k++) {
+                    if (soft.get(k) > maxProb) {
+                        maxProb = soft.get(k);
+                        predictedClass = k;
+                    }
+                }
+
+                int actualClass = testY.get(i).intValue();
+
+                List<String> formattedProbs = new ArrayList<>();
+                for (double prob : soft) {
+                    formattedProbs.add(String.format("%.6f", prob));
+                }
+                String probString = "[" + String.join(", ", formattedProbs) + "]";
+
+                System.out.printf("Sample %d: Predicted = %d | Actual = %d | Probabilities = %s%n",
+                        i, predictedClass, actualClass, probString);
+
+                if (predictedClass == actualClass) correct++;
+            }
+
+            double matched = (double) correct / testY.size();
+            System.out.printf("▶ Accuracy = %.4f (%d/%d matched)\n", matched, correct, testY.size());
+
+        }else {
             System.out.println("Invalid model type. Use 'single' or 'multi'.");
         }
     }

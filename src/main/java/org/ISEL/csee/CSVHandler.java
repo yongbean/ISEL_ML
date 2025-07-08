@@ -66,14 +66,31 @@ public class CSVHandler {
     }
 
     // 라벨(Chance of Admit) 반환
+    private Map<String, Integer> labelToIndex = new HashMap<>();
+
     public List<Double> getLabels() {
         List<Double> labels = new ArrayList<>();
+        int currentIndex = 0;
+
         for (int i = 1; i < rawCsvData.size(); i++) {
             List<String> row = rawCsvData.get(i);
-            labels.add(Double.parseDouble(row.getLast()));
+            String labelStr = row.getLast().trim();
+
+            try {
+                // 숫자면 그대로 파싱
+                labels.add(Double.parseDouble(labelStr));
+            } catch (NumberFormatException e) {
+                // 문자열이면 매핑
+                if (!labelToIndex.containsKey(labelStr)) {
+                    labelToIndex.put(labelStr, currentIndex++);
+                }
+                labels.add((double) labelToIndex.get(labelStr));
+            }
         }
+
         return labels;
     }
+
 
     // Optional: write to disk
     public void writeCSV(List<List<String>> csvFileList, String fileName) throws IOException {

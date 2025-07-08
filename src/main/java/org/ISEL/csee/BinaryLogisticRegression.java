@@ -41,6 +41,7 @@ public class BinaryLogisticRegression {
 
         // hypothesis의 threshold 값 train dataset base로 지정 후 test에 똑같이 적용
 
+
         for(int epoch = 0; epoch < epochs; epoch++) {
             double sum = 0;
             for(int j = 0; j < inputX.size(); j++) {
