@@ -2,7 +2,7 @@ package org.ISEL.csee;
 
 import java.util.*;
 
-public class LogisticRegression {
+public class BinaryLogisticRegression {
 
     // sigmoid 함수
     public double sigmoid(double z) {
@@ -22,7 +22,7 @@ public class LogisticRegression {
 
     // 비용 함수: binary cross entropy (single sample)
     //loss(cost) = -(y * log(H(x)) + (1 - y) * log(1 - H(x)))
-    public static double computeLoss(double y, double yHat) {
+    public double computeLoss(double y, double yHat) {
         return - (y * Math.log(yHat) + (1 - y) * Math.log(1 - yHat));
     }
 
@@ -39,8 +39,10 @@ public class LogisticRegression {
     // 학습: gradient descent
     public List<Double> run(List<List<Double>> inputX, List<Double> y, List<Double> w, double learningRate, int epochs) {
 
+        // hypothesis의 threshold 값 train dataset base로 지정 후 test에 똑같이 적용
 
         for(int epoch = 0; epoch < epochs; epoch++) {
+            double sum = 0;
             for(int j = 0; j < inputX.size(); j++) {
                 List<Double> x = inputX.get(j);
 
@@ -55,10 +57,11 @@ public class LogisticRegression {
                 for (int i = 0; i < w.size(); i++) {
                     w.set(i, w.get(i) - learningRate * gradW.get(i));
                 }
-
-//                if (epoch % 10000 == 0 || epoch == epochs - 1) {
-//                    System.out.printf("Prediction: %.4f | Loss: %.4f\n", yHat, computeLoss(y.get(j), yHat));
-//                }
+                sum += computeLoss(y.get(j), yHat);
+            }
+            sum /= inputX.size();
+            if (epoch % 10000 == 0 || epoch == epochs - 1) {
+                System.out.println("epoch: " + epoch + ", Cost: " + sum);
             }
         }
         return w;

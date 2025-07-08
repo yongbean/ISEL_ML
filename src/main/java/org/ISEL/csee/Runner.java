@@ -18,6 +18,7 @@ import java.util.List;
 
 // ./runner -t train.csv -p test.csv -m multi
 
+
 public class Runner {
     private String trainCsvFilePath;
     private String testCsvFilePath;
@@ -45,6 +46,9 @@ public class Runner {
         // 3. Hyperparameters
         float learningRate = 0.001f;
         int epochs = 100001;
+        double threshold = 0.9;
+        int tp = 0, fp = 0, fn = 0, tn = 0;
+        double precision = 0.01f, recall = 0.01f, accuracy = 0.01f;
 
         // 4. Model Training & Prediction
         if (modelType.equalsIgnoreCase("single")) {
@@ -92,23 +96,45 @@ public class Runner {
 //            for (int i = 0; i < featureSize; i++) weights.add(Math.random());
             for (int i = 0; i < featureSize; i++) weights.add(0.0);
 
-            LogisticRegression logistic = new LogisticRegression();
+            BinaryLogisticRegression logistic = new BinaryLogisticRegression();
             List<Double> logisticLearnedWeights = logistic.run(trainX, trainY, weights, learningRate, epochs);
 
             System.out.println("\n▶ Predicting on test set:");
-            int count = 0;
             for (int i = 0; i < testX.size(); i++) {
                 double pred = 0;
                 for (int j = 0; j < logisticLearnedWeights.size(); j++) {
                     pred += logisticLearnedWeights.get(j) * testX.get(i).get(j);
                 }
-                System.out.println("pred: " + pred + ", weight: " + logisticLearnedWeights.subList(0, logisticLearnedWeights.size()));
+//                System.out.println("pred: " + pred + ", weight: " + logisticLearnedWeights.subList(0, logisticLearnedWeights.size()));
+
+                // sigmoid 사용 후 theshold 값에 의해 0 or 1 지정
                 double sig = logistic.sigmoid(pred);
-                sig = (sig > 0.9) ? 1:0;
+                sig = (sig > threshold) ? 1:0;
                 System.out.printf("Sample %d: Predicted = %.5f | Actual = %.5f%n", i, sig, testY.get(i));
-                if((int)sig == testY.get(i)) count++;
+
+                // tp, fn, fp, tn 값 지정
+                if(testY.get(i) == 1) {
+                    if(sig == 1) tp++;
+                    else fn++;
+                }
+                else {
+                    if(sig == 1) fp++;
+                    else tn++;
+                }
             }
-            System.out.println("Matched count: " + count + "/" + testY.size());
+
+            // calculate precision, recall, accuracy
+            precision = (double) tp / (tp + fp);
+            recall = (double) tp / (tp + fn);
+            accuracy = (double) (tp + tn) / (tp + fn + fp + tn);
+
+            System.out.println();
+            System.out.println("tp = " + tp + " fp = " + fp + " fn = " + fn + " tn = " + tn);
+            System.out.println("precision = " + precision + ", recall = " + recall + ", accuracy = " + accuracy);
+            double f1 = 2 * precision * recall /(precision + recall);
+            System.out.println("F1 score = " + f1);
+            double result = (double) (tp + tn) / testY.size();
+            System.out.println("Matched count: " + (tp + tn) + "/" + testY.size() + " (" + result + ")");
         } else {
             System.out.println("Invalid model type. Use 'single' or 'multi'.");
         }
