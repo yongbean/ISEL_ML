@@ -4,9 +4,6 @@ import java.util.*;
 
 public class XORClassification {
 
-//    public void run() {
-//
-//    }
     public static void main(String[] args) {
         // input x
         List<List<Double>> inputX = Arrays.asList(
@@ -28,11 +25,12 @@ public class XORClassification {
         // output layer
         Perceptron outputPerceptron = new Perceptron(2);
 
-        double learningRate = 0.5;
-        int epochs = 10000;
+        double learningRate = 0.05;
+        int epochs = 100001;
 
         for(int epoch = 0; epoch < epochs; epoch++) {
             double error = 0.0;
+
             // 각각의 inputX에 대한 yhat 계산 => forward 값 계산
             for(int i = 0; i < inputX.size(); i++){
                 List<Double> xLabel = inputX.get(i);
@@ -51,7 +49,7 @@ public class XORClassification {
                 error += - (y * Math.log(yhat + 1e-8) + (1 - y) * Math.log(1 - yhat + 1e-8));
 
                 // backpropagation 각 layer별로 연쇠작용으로 계산 => output layer + hidden layer 미분 값만 계산 필요
-                // y label & yhat val에 대한 delta
+                // y label & yhat val에 대한 derivative 값 계산
                 outputPerceptron.calcOutputDelta(y);
                 for(int j = 0; j < hiddenOutputVal.size(); j++){
                     Perceptron h = hiddenLayer.get(j);
@@ -68,14 +66,14 @@ public class XORClassification {
                 }
             }
 
-            if (epoch % 1000 == 0 || epoch == epochs - 1) {
+            if (epoch % 10000 == 0 || epoch == epochs - 1) {
                 System.out.printf("Epoch %d: Loss = %.4f%n", epoch, error);
             }
 
         }
 
         // Prediction
-        System.out.println("\n▶ Final Predictions:");
+        System.out.println("\nFinal Predictions:");
         for (int i = 0; i < inputX.size(); i++) {
             List<Double> x = inputX.get(i);
             List<Double> hiddenOutputs = new ArrayList<>();
@@ -83,26 +81,7 @@ public class XORClassification {
                 hiddenOutputs.add(h.forward(x));
             }
             double yHat = outputPerceptron.forward(hiddenOutputs);
-            System.out.printf("Input: %s → Predicted = %.4f | Actual = %.0f%n", x, yHat, yLabel.get(i));
+            System.out.printf("Input: %s : Predicted = %.4f | Actual = %.0f%n", x, yHat, yLabel.get(i));
         }
-
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

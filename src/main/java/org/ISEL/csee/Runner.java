@@ -43,6 +43,12 @@ public class Runner {
         List<List<Double>> testX = testHandler.getNormalizedFeatures();
         List<Double> testY = testHandler.getLabels();
 
+        // batch size handling
+        int totalSize = trainX.size();
+        int batchSize = (int) Math.sqrt(totalSize);  // 자동 계산
+        List<List<List<Double>>> batchesX = createBatches(trainX, batchSize);
+        List<List<Double>> batchesY = createLabelBatches(trainY, batchSize);
+
         // 3. Hyperparameters
         float learningRate = 0.001f;
         int epochs = 100001;
@@ -57,7 +63,7 @@ public class Runner {
 
         // 4. Model Training & Prediction
         if (modelType.equalsIgnoreCase("single")) {
-            System.out.println("▶ Training Single-Variable Linear Regression...");
+            System.out.println("Training Single-Variable Linear Regression...");
 
             float w = 0f, b = 0f;
             // 2D to 1D
@@ -67,7 +73,7 @@ public class Runner {
             SingleGradientDescent single = new SingleGradientDescent();
             float[] wb = single.run(flatTrainX, trainY, learningRate, w, b, epochs);
 
-            System.out.println("\n▶ Predicting on test set:");
+            System.out.println("\nPredicting on test set:");
             for (int i = 0; i < flatTestX.size(); i++) {
                 double x = flatTestX.get(i);
                 double pred = wb[0] * x + wb[1];
@@ -75,12 +81,12 @@ public class Runner {
             }
 
         } else if (modelType.equalsIgnoreCase("multi")) {
-            System.out.println("▶ Training Multi-Variable Linear Regression...");
+            System.out.println("Training Multi-Variable Linear Regression...");
 
             MultiGradientDescent multi = new MultiGradientDescent();
             List<Double> learnedWeights = multi.run(trainX, trainY, learningRate, weights, epochs);
 
-            System.out.println("\n▶ Predicting on test set:");
+            System.out.println("\nPredicting on test set:");
             for (int i = 0; i < testX.size(); i++) {
                 double pred = 0;
                 for (int j = 0; j < learnedWeights.size(); j++) {
@@ -90,13 +96,13 @@ public class Runner {
             }
 
         } else if(modelType.equalsIgnoreCase("logistic")) {
-            System.out.println("▶ Training single-feature Logistic Regression...");
+            System.out.println("Training single-feature Logistic Regression...");
 
 
             BinaryLogisticRegression logistic = new BinaryLogisticRegression();
             List<Double> logisticLearnedWeights = logistic.run(trainX, trainY, weights, learningRate, epochs);
 
-            System.out.println("\n▶ Predicting on test set:");
+            System.out.println("\nPredicting on test set:");
             for (int i = 0; i < testX.size(); i++) {
                 double pred = 0;
                 for (int j = 0; j < logisticLearnedWeights.size(); j++) {
@@ -132,11 +138,13 @@ public class Runner {
             System.out.println("F1 score = " + f1);
             double result = (double) (tp + tn) / testY.size();
             System.out.println("Matched count: " + (tp + tn) + "/" + testY.size() + " (" + result + ")");
+
+
         } else if(modelType.equalsIgnoreCase("softmax")) {
             MultinomialLogisticRegression softmax = new MultinomialLogisticRegression();
             List<List<Double>> softmaxWeight = softmax.run(trainX, trainY, learningRate, epochs);
 
-            System.out.println("\n▶ Predicting on test set:");
+            System.out.println("\nPredicting on test set:");
 
             int correct = 0;
 
@@ -170,7 +178,7 @@ public class Runner {
             }
 
             double matched = (double) correct / testY.size();
-            System.out.printf("▶ Accuracy = %.4f (%d/%d matched)\n", matched, correct, testY.size());
+            System.out.printf("Accuracy = %.4f (%d/%d matched)\n", matched, correct, testY.size());
 
         }else {
             System.out.println("Invalid model type. Use 'single' or 'multi'.");
@@ -230,5 +238,23 @@ public class Runner {
         HelpFormatter formatter = new HelpFormatter();
         String header = "ML Regression Model Runner";
         formatter.printHelp(header, options, true);
+    }
+
+    private List<List<List<Double>>> createBatches(List<List<Double>> data, int batchSize) {
+        List<List<List<Double>>> batches = new ArrayList<>();
+        for (int i = 0; i < data.size(); i += batchSize) {
+            int end = Math.min(i + batchSize, data.size());
+            batches.add(data.subList(i, end));
+        }
+        return batches;
+    }
+
+    private List<List<Double>> createLabelBatches(List<Double> labels, int batchSize) {
+        List<List<Double>> labelBatches = new ArrayList<>();
+        for (int i = 0; i < labels.size(); i += batchSize) {
+            int end = Math.min(i + batchSize, labels.size());
+            labelBatches.add(labels.subList(i, end));
+        }
+        return labelBatches;
     }
 }
